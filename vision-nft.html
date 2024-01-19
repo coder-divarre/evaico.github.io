@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>vision</title>
+  <style>
+    #imageContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .imageWrapper {
+      margin: 10px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      flex: 0 0 calc(12.5% - 20px); /* 每行8张图片，减去外边距的宽度，根据需要进行调整 */
+      position: relative;
+    }
+
+    .imageWrapper .loadingIndicator {
+      position: absolute;
+      top: 80%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-weight: bold;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 5px;
+      z-index: 1;
+    }
+
+    .imageWrapper img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .responsive-image {
+  width: 20%;
+  height: auto;
+}
+
+    #loadingIndicator {
+      display: none;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    /* 每行8张图片自适应排列 */
+    @media (max-width: 1024px) {
+      .imageWrapper {
+        flex: 0 0 calc(25% - 20px);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .imageWrapper {
+        flex: 0 0 calc(33.33% - 20px);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .imageWrapper {
+        flex: 0 0 calc(50% - 20px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="imageContainer"></div>
+  <div id="loadingIndicator"></div>
+
+  <script>
+    // JavaScript代码
+    var imageContainer = document.getElementById("imageContainer");
+    var loadingIndicator = document.getElementById("loadingIndicator");
+    var loadCount = 40;
+    var index = 0;
+    var baseURL1 = "https://zhaak-raaaa-aaaam-abogq-cai.raw.icp0.io/?index=";
+    var baseURL2 = "https://zodlw-hiaaa-aaaam-aboha-cai.raw.icp0.io/?index=";
+    var baseIndex2 = 719;
+
+    function showLoadingIndicator() {
+      loadingIndicator.style.display = "block";
+    }
+
+    function hideLoadingIndicator() {
+      loadingIndicator.style.display = "none";
+    }
+
+    var totalLoadedCount = 0;
+var totalLimit = 889; // 设置总的图片加载限制
+
+function loadImage() {
+  showLoadingIndicator();
+
+      for (var i = 0; i < loadCount; i++) {
+        if (totalLoadedCount >= totalLimit) {
+      // 达到总的图片加载限制，停止加载
+      hideLoadingIndicator();
+      return;
+    }
+
+        var imageWrapper = document.createElement("div");
+        imageWrapper.classList.add("imageWrapper");
+
+        var image = document.createElement("img");
+        image.classList.add("lazy");
+        image.classList.add("responsive-image");
+
+        
+        image.dataset.src = ""; // 先设置空的 data-src 属性
+        imageWrapper.appendChild(image);
+
+        var loadingIndicator = document.createElement("div");
+        loadingIndicator.classList.add("loadingIndicator");
+
+        imageWrapper.appendChild(loadingIndicator);
+
+        if (index < 719) {
+          image.dataset.src = baseURL1 + index;
+          loadingIndicator.innerText = "#" + index;
+        } else {
+          image.dataset.src = baseURL2 + (index - baseIndex2);
+          loadingIndicator.innerText = "#" + index;
+        }
+
+
+        
+        imageContainer.appendChild(imageWrapper);
+        index++;
+        totalLoadedCount++; // 增加已加载的图片数量
+
+      }
+
+      hideLoadingIndicator();
+      lazyLoadImages();
+    }
+
+    function isBottomReached() {
+      var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      var windowHeight = window.innerHeight;
+      var documentHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+
+      return scrollTop + windowHeight >= documentHeight;
+    }
+
+    function lazyLoadImages() {
+      var lazyImages = document.querySelectorAll('.lazy');
+
+      lazyImages.forEach(function(lazyImage) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              var image = entry.target;
+              image.src = image.dataset.src;
+              image.classList.remove('lazy');
+              observer.unobserve(image);
+            }
+          });
+        });
+
+        observer.observe(lazyImage);
+      });
+    }
+
+    window.addEventListener("scroll", function() {
+      if (isBottomReached()) {
+        loadImage();
+      }
+    });
+
+    // 初始化加载第一批图片
+    loadImage();
+
+    // 开始懒加载
+    window.addEventListener('DOMContentLoaded', lazyLoadImages);
+    window.addEventListener('load', lazyLoadImages);
+    window.addEventListener('resize', lazyLoadImages);
+    window.addEventListener('scroll', lazyLoadImages);
+  </script>
+</body>
+</html>
